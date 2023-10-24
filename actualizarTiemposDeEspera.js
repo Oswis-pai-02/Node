@@ -21,5 +21,5 @@ const tiemposDeEspera = {
   const andenActualizar = "anden1";
   const nuevoTiempoEspera = 7;
   const mensaje = actualizarTiemposDeEspera(andenActualizar, nuevoTiempoEspera);
-  console.log(mensaje);
+  console.log(mensaje);//con comentarios
   
