@@ -1,41 +1,54 @@
-// Método para obtener notificaciones en tu aplicación
-function obtenerNotificaciones() {
-    // Aquí puedes implementar la lógica para recibir notificaciones
-    // Esto dependerá de la tecnología que estés utilizando y cómo recibas las notificaciones
-  
-    // Ejemplo: Escuchar notificaciones entrantes
-    tuTecnologiaDeNotificaciones.on('notification', (notificacion) => {
-      // Procesar la notificación entrante
-      console.log('Notificación recibida:', notificacion);
-  
-      // Puedes realizar acciones específicas según la notificación, como mostrar un mensaje en la interfaz de usuario
-      mostrarNotificacionEnInterfaz(notificacion);
-    });
-  
-    // Ejemplo: Manejar eventos de clic en la notificación
-    tuTecnologiaDeNotificaciones.on('notificationClick', (notificacion) => {
-      // Procesar el evento de clic en la notificación
-      console.log('Clic en la notificación:', notificacion);
-  
-      // Realizar acciones adicionales al hacer clic en la notificación
-      realizarAccionAlClicEnNotificacion(notificacion);
-    });
-  
-    // ... Puedes agregar más lógica según tus necesidades
-  
-    console.log('Esperando notificaciones...');
+const express = require('express');
+const mongoose = require('mongoose');
+
+// Configurar Express
+const app = express();
+app.use(express.json());
+
+// Conectar a la base de datos MongoDB Atlas
+mongoose.connect('mongodb+srv://<usuario>:<contraseña>@cluster.mongodb.net/<nombre-basededatos>', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'Error de conexión a MongoDB:'));
+db.once('open', () => {
+  console.log('Conexión a MongoDB Atlas establecida con éxito.');
+});
+
+// Definir el modelo de datos de notificaciones
+const notificacionSchema = new mongoose.Schema({
+  titulo: String,
+  cuerpo: String,
+  datosAdicionales: Object,
+  fechaCreacion: { type: Date, default: Date.now }
+});
+
+const Notificacion = mongoose.model('Notificacion', notificacionSchema);
+
+// Método para obtener todas las notificaciones
+async function obtenerNotificaciones() {
+  try {
+    const notificaciones = await Notificacion.find({}).exec();
+    return notificaciones;
+  } catch (error) {
+    console.error('Error al obtener las notificaciones:', error);
+    throw error;
   }
-  
-  // Ejemplo de función para mostrar una notificación en la interfaz de usuario
-  function mostrarNotificacionEnInterfaz(notificacion) {
-    // Implementa aquí cómo mostrar la notificación en la interfaz de tu aplicación
+}
+
+// Ruta para obtener notificaciones
+app.get('/notificaciones', async (req, res) => {
+  try {
+    const notificaciones = await obtenerNotificaciones();
+    res.json(notificaciones);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener las notificaciones.' });
   }
-  
-  // Ejemplo de función para realizar acciones al hacer clic en una notificación
-  function realizarAccionAlClicEnNotificacion(notificacion) {
-    // Implementa aquí las acciones que deseas realizar al hacer clic en la notificación
-  }
-  
-  // Llama al método obtenerNotificaciones para empezar a recibir notificaciones
-  obtenerNotificaciones();
-  
+});
+
+// Iniciar el servidor
+const puerto = 3000;
+app.listen(puerto, () => {
+  console.log(`Servidor escuchando en el puerto ${puerto}`);
+});
