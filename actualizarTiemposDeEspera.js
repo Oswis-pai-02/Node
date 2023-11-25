@@ -16,7 +16,7 @@ const tiemposDeEspera = {
     },
     // ...otros estaciones
   },
-  // ...otros líneas
+  // ...otros líneas....
 };
 
 // Método para actualizar el tiempo de espera en un registro específico
